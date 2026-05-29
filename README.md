@@ -1,58 +1,38 @@
-
 # 🚀 Microblog Platform
 
-A production-grade microservice-based blogging platform built with:
+A scalable microservice-based blogging platform built with:
 
 * FastAPI
 * React / Next.js
 * PostgreSQL
 * Redis
+* RabbitMQ
 * Docker
 * Celery
+* Google OAuth
 
-Designed with scalable backend architecture, event-driven communication, and DevOps best practices.
-
----
-
-# 📚 Table of Contents
-
-* Overview
-* Architecture
-* Tech Stack
-* Features
-* Repository Structure
-* Getting Started
-* Development Setup
-* Running Services
-* Environment Variables
-* API Documentation
-* Docker Setup
-* Future Improvements
-* CI/CD
-* Contributing
-* License
+Designed with modern backend architecture, event-driven communication, and DevOps best practices.
 
 ---
 
-# 🌟 Overview
+# ✨ Features
 
-Microblog Platform is a scalable full-stack blogging system following modern microservice architecture principles.
-
-The project is designed to teach and demonstrate:
-
-* Microservices
-* Distributed systems
-* Event-driven architecture
-* Containerization
-* Backend scalability
-* Production-grade API development
-* DevOps workflows
+* JWT Authentication
+* Google OAuth Login
+* Blog CRUD APIs
+* API Gateway
+* User Management
+* Async Background Tasks
+* Redis Caching
+* RabbitMQ Messaging
+* Dockerized Microservices
+* Production-Ready Architecture
 
 ---
 
 # 🏗️ Architecture
 
-```text
+```text id="g2vh95"
 Frontend (Next.js)
         │
         ▼
@@ -60,18 +40,15 @@ API Gateway
         │
  ┌──────┼──────┐
  ▼      ▼      ▼
-Auth   Blog   Comment
+Auth   User   Blog
 Svc    Svc     Svc
  │       │       │
  └───────┼───────┘
          ▼
-      PostgreSQL
+     PostgreSQL
 
          ▼
-       Redis
-
-         ▼
-   Notification Svc
+   Redis / RabbitMQ
 ```
 
 ---
@@ -80,101 +57,52 @@ Svc    Svc     Svc
 
 ## Backend
 
-| Technology  | Purpose             |
-| ----------- | ------------------- |
-| FastAPI     | API framework       |
-| SQLAlchemy  | ORM                 |
-| PostgreSQL  | Primary database    |
-| Redis       | Cache & messaging   |
-| Celery      | Background tasks    |
-| Pydantic v2 | Validation          |
-| Alembic     | Database migrations |
-
----
+* FastAPI
+* SQLAlchemy
+* PostgreSQL
+* Redis
+* RabbitMQ
+* Celery
+* Alembic
+* Pydantic v2
 
 ## Frontend
 
-| Technology  | Purpose            |
-| ----------- | ------------------ |
-| React       | UI                 |
-| Next.js     | Frontend framework |
-| TailwindCSS | Styling            |
-| Zustand     | State management   |
-| Axios       | API requests       |
-
----
+* React
+* Next.js
+* TailwindCSS
 
 ## DevOps
 
-| Technology     | Purpose          |
-| -------------- | ---------------- |
-| Docker         | Containerization |
-| Kubernetes     | Orchestration    |
-| GitHub Actions | CI/CD            |
-| Nginx          | Reverse proxy    |
-| Prometheus     | Monitoring       |
-| Grafana        | Visualization    |
-
----
-
-# ✨ Features
-
-## MVP Features
-
-* User registration
-* JWT authentication
-* Create/Edit/Delete posts
-* Comments system
-* Redis caching
-* Async background jobs
-* API Gateway
-* Dockerized services
-
----
-
-## Planned Features
-
-* Full-text search
-* Notifications
-* Media uploads
-* Role-based access control
-* Rate limiting
-* Distributed tracing
-* Kubernetes deployment
-* CI/CD pipeline
+* Docker
+* GitHub Actions
+* Nginx
+* Prometheus
+* Grafana
 
 ---
 
 # 📂 Repository Structure
 
-```text
+```text id="u8rjhg"
 microblog-platform/
 │
 ├── apps/
-│   ├── gateway/
+│   ├── gateway-service/
 │   ├── auth-service/
+│   ├── user-service/
 │   ├── blog-service/
-│   ├── comment-service/
-│   ├── media-service/
-│   ├── notification-service/
 │   └── frontend/
 │
-├── packages/
-│   ├── common/
-│   ├── logger/
-│   ├── schemas/
-│   └── utils/
 │
 ├── infrastructure/
 │   ├── docker/
 │   ├── kubernetes/
-│   ├── nginx/
-│   └── terraform/
+│   └── monitoring/
 │
 ├── docs/
 ├── scripts/
-├── .github/
-│   └── workflows/
+├── .github/workflows/
 │
 ├── docker-compose.yml
 ├── Taskfile.yml
@@ -183,61 +111,55 @@ microblog-platform/
 
 ---
 
-# 🚀 Getting Started
+# 🔧 Services
 
-## Prerequisites
+| Service         | Responsibility                          |
+| --------------- | --------------------------------------- |
+| Gateway Service | Routing, auth validation, rate limiting |
+| Auth Service    | JWT auth, login, register, OAuth        |
+| User Service    | Profiles, avatars, preferences          |
+| Blog Service    | Posts, tags, categories                 |
 
-Install:
 
-* Python 3.13+
-* Node.js 22+
-* Docker
-* Redis
-* PostgreSQL
-* uv
-* Task
+# Future Services
+
+| Phase | Service               |
+| ----- | --------------------- |
+| 1     | Content Moderation    |
+| 2     | Semantic Search       |
+| 3     | Recommendation Engine |
 
 ---
 
-# 🔧 Backend Setup
+# 🚀 Getting Started
 
 ## Clone Repository
 
-```bash
+```bash id="lffkvh"
 git clone https://github.com/yourusername/microblog-platform.git
 
 cd microblog-platform
 ```
 
----
-
 ## Start Infrastructure
 
-```bash
+```bash id="0w9iyf"
 docker compose up -d
 ```
 
----
+## Run Auth Service
 
-## Setup Auth Service
-
-```bash
+```bash id="wq7q2t"
 cd apps/auth-service
 
 uv sync
-```
 
-Run service:
-
-```bash
 uv run uvicorn app.main:app --reload
 ```
 
----
+## Run Frontend
 
-# 💻 Frontend Setup
-
-```bash
+```bash id="g6u0kp"
 cd apps/frontend
 
 npm install
@@ -247,83 +169,31 @@ npm run dev
 
 ---
 
-# 🐳 Docker Setup
-
-Run all services:
-
-```bash
-docker compose up --build
-```
-
-Stop services:
-
-```bash
-docker compose down
-```
-
----
-
 # 🔑 Environment Variables
 
-Example:
-
-```env
+```env id="e3sj4m"
 DATABASE_URL=postgresql+asyncpg://admin:password@localhost:5432/microblog
 
 REDIS_URL=redis://localhost:6379
 
-SECRET_KEY=your_secret_key
+RABBITMQ_URL=amqp://guest:guest@localhost:5672/
 
-ACCESS_TOKEN_EXPIRE_MINUTES=30
+SECRET_KEY=your_secret_key
 ```
 
 ---
 
-# 📘 API Documentation
+# 📘 API Docs
 
-FastAPI automatically generates OpenAPI docs.
-
-Swagger UI:
-
-```text
+```text id="qarf8n"
 http://localhost:8000/docs
 ```
 
-ReDoc:
-
-```text
-http://localhost:8000/redoc
-```
-
 ---
 
-# 🧪 Testing
+# 🧪 Development Commands
 
-Run tests:
-
-```bash
-pytest
-```
-
-Run linting:
-
-```bash
-ruff check .
-```
-
-Run type checking:
-
-```bash
-mypy .
-```
-
----
-
-# 📦 Taskfile Commands
-
-Example commands:
-
-```bash
+```bash id="r4n2dm"
 task up
 task down
 task test
@@ -333,40 +203,25 @@ task format
 
 ---
 
-# 🔄 CI/CD
+# 🔄 Planned Features
 
-Planned pipeline:
-
-1. Run tests
-2. Run linting
-3. Build Docker images
-4. Push images
-5. Deploy to Kubernetes
-
----
-
-# 📈 Monitoring
-
-Planned observability stack:
-
-* Prometheus
-* Grafana
-* OpenTelemetry
-* Jaeger
+* Notifications Service
+* Media Upload Service
+* Full-Text Search
+* Distributed Tracing
+* Kubernetes Deployment
+* CI/CD Pipeline
+* Multi-Tenant Architecture
+* AI-Powered Recommendations
 
 ---
 
 # 🤝 Contributing
 
-Contributions are welcome.
-
-Steps:
-
 1. Fork repository
 2. Create feature branch
 3. Commit changes
-4. Push branch
-5. Open Pull Request
+4. Open Pull Request
 
 ---
 
@@ -379,15 +234,3 @@ MIT License
 # 👨‍💻 Author
 
 Nazmul Alam Diptu
-
----
-
-# ⭐ Future Goals
-
-* AI-powered recommendations
-* Real-time notifications
-* GraphQL gateway
-* Multi-tenant architecture
-* SaaS-ready deployment
-* Event sourcing
-* CQRS architecture

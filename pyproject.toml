@@ -1,0 +1,31 @@
+[project]
+name = "try-fast"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11.9"
+dependencies = ["fastapi[standard]>=0.136.3"]
+
+[tool.uv.workspace]
+members = [
+    "microblog-platform/apps/auth-service",
+    "microblog-platform/apps/user-service",
+    "microblog-platform/apps/blog-service",
+]
+
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"

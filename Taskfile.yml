@@ -1,0 +1,65 @@
+version: "3"
+
+vars:
+  PROJECT_NAME: microblog-platform
+
+tasks:
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list
+
+  init:
+    desc: Initialize monorepo structure
+    cmds:
+      - mkdir -p {{.PROJECT_NAME}}
+      - mkdir -p {{.PROJECT_NAME}}/apps
+      - mkdir -p {{.PROJECT_NAME}}/apps/frontend
+      - mkdir -p {{.PROJECT_NAME}}/infrastructure/docker
+      - mkdir -p {{.PROJECT_NAME}}/infrastructure/kubernetes
+      - mkdir -p {{.PROJECT_NAME}}/infrastructure/monitoring
+      - mkdir -p {{.PROJECT_NAME}}/docs
+      - mkdir -p {{.PROJECT_NAME}}/.github/workflows
+
+      - touch {{.PROJECT_NAME}}/README.md
+      - touch {{.PROJECT_NAME}}/.env
+      - touch {{.PROJECT_NAME}}/.gitignore
+      - touch {{.PROJECT_NAME}}/docker-compose.yml
+
+      - 'echo "Monorepo initialized: {{.PROJECT_NAME}}"'
+
+  create-service:
+    desc: Create a new FastAPI microservice
+    vars:
+      SERVICE: '{{.CLI_ARGS}}'
+
+    cmds:
+      - mkdir -p {{.PROJECT_NAME}}/apps/{{.SERVICE}}/app/api/v1
+      - mkdir -p {{.PROJECT_NAME}}/apps/{{.SERVICE}}/app/core
+      - mkdir -p {{.PROJECT_NAME}}/apps/{{.SERVICE}}/app/db
+      - mkdir -p {{.PROJECT_NAME}}/apps/{{.SERVICE}}/app/models
+      - mkdir -p {{.PROJECT_NAME}}/apps/{{.SERVICE}}/app/repositories
+      - mkdir -p {{.PROJECT_NAME}}/apps/{{.SERVICE}}/app/schemas
+      - mkdir -p {{.PROJECT_NAME}}/apps/{{.SERVICE}}/app/services
+      - mkdir -p {{.PROJECT_NAME}}/apps/{{.SERVICE}}/app/workers
+      - mkdir -p {{.PROJECT_NAME}}/apps/{{.SERVICE}}/tests
+
+      - touch {{.PROJECT_NAME}}/apps/{{.SERVICE}}/app/main.py
+      - touch {{.PROJECT_NAME}}/apps/{{.SERVICE}}/README.md
+      - touch {{.PROJECT_NAME}}/apps/{{.SERVICE}}/.env
+      - touch {{.PROJECT_NAME}}/apps/{{.SERVICE}}/Dockerfile
+
+      - sh -c 'cd {{.PROJECT_NAME}}/apps/{{.SERVICE}} && uv init'
+      - sh -c 'cd {{.PROJECT_NAME}}/apps/{{.SERVICE}} && uv venv'
+
+      - 'echo "Service created: {{.SERVICE}}"'
+
+  tree:
+    desc: Show project structure
+    cmds:
+      - tree {{.PROJECT_NAME}} -L 4 -I '.venv|node_modules|__pycache__'
+
+  reset:
+    desc: Delete project
+    cmds:
+      - rm -rf {{.PROJECT_NAME}}
