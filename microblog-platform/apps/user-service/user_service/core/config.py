@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     PORT: int = 8001
 
     DATABASE_URL: str | None = None
+    DEFAULT_USER_IMAGE: str = (
+        "microblog-platform/apps/user-service/user_service/assets/user.png"
+    )
 
     model_config = SettingsConfigDict(extra="ignore", env_file=None)
 
