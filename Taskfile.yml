@@ -34,31 +34,102 @@ tasks:
       SERVICE: '{{.CLI_ARGS}}'
 
     cmds:
-      - mkdir -p {{.PROJECT_NAME}}/apps/{{.SERVICE}}/app/api/v1
-      - mkdir -p {{.PROJECT_NAME}}/apps/{{.SERVICE}}/app/core
-      - mkdir -p {{.PROJECT_NAME}}/apps/{{.SERVICE}}/app/db
-      - mkdir -p {{.PROJECT_NAME}}/apps/{{.SERVICE}}/app/models
-      - mkdir -p {{.PROJECT_NAME}}/apps/{{.SERVICE}}/app/repositories
-      - mkdir -p {{.PROJECT_NAME}}/apps/{{.SERVICE}}/app/schemas
-      - mkdir -p {{.PROJECT_NAME}}/apps/{{.SERVICE}}/app/services
-      - mkdir -p {{.PROJECT_NAME}}/apps/{{.SERVICE}}/app/workers
+      - mkdir -p {{.PROJECT_NAME}}/apps/{{.SERVICE}}/{{.SERVICE}}/api/v1
+      - mkdir -p {{.PROJECT_NAME}}/apps/{{.SERVICE}}/{{.SERVICE}}/core
+      - mkdir -p {{.PROJECT_NAME}}/apps/{{.SERVICE}}/{{.SERVICE}}/db
+      - mkdir -p {{.PROJECT_NAME}}/apps/{{.SERVICE}}/{{.SERVICE}}/models
+      - mkdir -p {{.PROJECT_NAME}}/apps/{{.SERVICE}}/{{.SERVICE}}/repositories
+      - mkdir -p {{.PROJECT_NAME}}/apps/{{.SERVICE}}/{{.SERVICE}}/schemas
+      - mkdir -p {{.PROJECT_NAME}}/apps/{{.SERVICE}}/{{.SERVICE}}/services
+      - mkdir -p {{.PROJECT_NAME}}/apps/{{.SERVICE}}/{{.SERVICE}}/workers
       - mkdir -p {{.PROJECT_NAME}}/apps/{{.SERVICE}}/tests
 
-      - touch {{.PROJECT_NAME}}/apps/{{.SERVICE}}/app/main.py
+      - touch {{.PROJECT_NAME}}/apps/{{.SERVICE}}/{{.SERVICE}}/main.py
       - touch {{.PROJECT_NAME}}/apps/{{.SERVICE}}/README.md
       - touch {{.PROJECT_NAME}}/apps/{{.SERVICE}}/.env
       - touch {{.PROJECT_NAME}}/apps/{{.SERVICE}}/Dockerfile
+      - touch {{.PROJECT_NAME}}/apps/{{.SERVICE}}/{{.SERVICE}}/__init__.py
+      - touch {{.PROJECT_NAME}}/apps/{{.SERVICE}}/{{.SERVICE}}/api/__init__.py
+      - touch {{.PROJECT_NAME}}/apps/{{.SERVICE}}/{{.SERVICE}}/api/v1/__init__.py
+      - touch {{.PROJECT_NAME}}/apps/{{.SERVICE}}/{{.SERVICE}}/core/__init__.py
+      - touch {{.PROJECT_NAME}}/apps/{{.SERVICE}}/{{.SERVICE}}/db/__init__.py
+      - touch {{.PROJECT_NAME}}/apps/{{.SERVICE}}/{{.SERVICE}}/models/__init__.py
+      - touch {{.PROJECT_NAME}}/apps/{{.SERVICE}}/{{.SERVICE}}/repositories/__init__.py
+      - touch {{.PROJECT_NAME}}/apps/{{.SERVICE}}/{{.SERVICE}}/schemas/__init__.py
+      - touch {{.PROJECT_NAME}}/apps/{{.SERVICE}}/{{.SERVICE}}/services/__init__.py
+      - touch {{.PROJECT_NAME}}/apps/{{.SERVICE}}/{{.SERVICE}}/workers/__init__.py
 
       - sh -c 'cd {{.PROJECT_NAME}}/apps/{{.SERVICE}} && uv init'
       - sh -c 'cd {{.PROJECT_NAME}}/apps/{{.SERVICE}} && uv venv'
 
       - 'echo "Service created: {{.SERVICE}}"'
 
+
+  setup-dev:
+    desc: Install development dependencies
+    cmds:
+      - uv add --dev ruff mypy pytest pytest-asyncio httpx
+
+  lint:
+    desc: Run Ruff linting
+    cmds:
+      - uv run ruff check .
+
+  lint-fix:
+    desc: Run Ruff linting with auto-fix
+    cmds:
+      - uv run ruff check . --fix
+
+  format:
+    desc: Format code using Ruff
+    cmds:
+      - uv run ruff format .
+
+  type-check:
+    desc: Run MyPy type checking
+    cmds:
+      - uv run mypy .
+
+  test:
+    desc: Run tests with Pytest
+    cmds:
+      - uv run pytest -v
+
+  check:
+    desc: Run all checks
+    cmds:
+      - task lint
+      - task type-check
+      - task test
+
+  dev-user:
+    desc: Run user-service
+    
+    cmds:
+      - >
+        cd {{.PROJECT_NAME}}/apps/user-service
+        && uv run uvicorn user_service.main:app --reload --port 8001
+
+  dev-blog:
+    desc: Run blog-service
+    cmds:
+      - >
+        cd {{.PROJECT_NAME}}/apps/blog-service
+        && uv run uvicorn blog-service.main:app --reload --port 8002
+
   tree:
     desc: Show project structure
     cmds:
       - tree {{.PROJECT_NAME}} -L 4 -I '.venv|node_modules|__pycache__'
 
+  clean:
+    desc: Clean Python cache + build artifacts
+    cmds:
+      - find . -type d -name "__pycache__" -exec rm -rf {} +
+      - find . -type f -name "*.pyc" -delete
+      - find . -type f -name "*.pyo" -delete
+      - find . -type d -name ".pytest_cache" -exec rm -rf {} +
+      - find . -type d -name ".mypy_cache" -exec rm -rf {} +
   reset:
     desc: Delete project
     cmds:

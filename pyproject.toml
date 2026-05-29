@@ -4,14 +4,16 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11.9"
-dependencies = ["fastapi[standard]>=0.136.3"]
+dependencies = [
+    "asyncpg>=0.31.0",
+    "fastapi[standard]>=0.136.3",
+    "greenlet>=3.5.1",
+    "python-dotenv>=1.2.2",
+    "sqlalchemy>=2.0.50",
+]
 
 [tool.uv.workspace]
-members = [
-    "microblog-platform/apps/auth-service",
-    "microblog-platform/apps/user-service",
-    "microblog-platform/apps/blog-service",
-]
+members = ["apps/*"]
 
 
 [tool.ruff]
@@ -25,7 +27,20 @@ select = ["E", "F", "I", "B", "UP"]
 python_version = "3.11"
 strict = true
 ignore_missing_imports = true
+explicit_package_bases = true
+namespace_packages = true
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["microblog-platform/apps/user-service/tests"]
 asyncio_mode = "auto"
+pythonpath = ["microblog-platform/apps/user-service"]
+
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "mypy>=2.1.0",
+    "pytest>=9.0.3",
+    "pytest-asyncio>=1.4.0",
+    "ruff>=0.15.15",
+]
