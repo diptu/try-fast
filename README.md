@@ -97,7 +97,6 @@ microblog-platform/
 │
 ├── infrastructure/
 │   ├── docker/
-│   ├── kubernetes/
 │   └── monitoring/
 │
 ├── docs/
@@ -135,7 +134,7 @@ microblog-platform/
 
 ## Clone Repository
 
-```bash id="lffkvh"
+```bash
 git clone https://github.com/yourusername/microblog-platform.git
 
 cd microblog-platform
@@ -143,7 +142,7 @@ cd microblog-platform
 
 ## Start Infrastructure
 
-```bash id="0w9iyf"
+```bash
 docker compose up -d
 ```
 
@@ -159,7 +158,7 @@ uv run uvicorn app.main:app --reload
 
 ## Run Frontend
 
-```bash id="g6u0kp"
+```bash
 cd apps/frontend
 
 npm install
@@ -171,7 +170,7 @@ npm run dev
 
 # 🔑 Environment Variables
 
-```env id="e3sj4m"
+```env
 DATABASE_URL=postgresql+asyncpg://admin:password@localhost:5432/microblog
 
 REDIS_URL=redis://localhost:6379
