@@ -41,3 +41,13 @@ class UserRead(UserBase):
         populate_by_name=True,
         validate_by_name=True,
     )
+
+
+class UserDeleteResponse(BaseModel):
+    """
+    Response returned after a successful soft delete.
+    """
+
+    id: UUID
+    status: str
+    message: str

@@ -1,4 +1,5 @@
 from typing import Literal
+from uuid import UUID
 
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,9 +14,9 @@ class RoleChecker:
 
     async def __call__(
         self,
-        current_user_id: str = Depends(is_authenticated),  # noqa: B008
+        current_user_id: UUID = Depends(is_authenticated),  # noqa: B008
         session: AsyncSession = Depends(get_db),  # noqa: B008
-    ) -> str:
+    ) -> UUID:
         """
         Validates that the authenticated user possesses an authorized role.
         Returns the user ID if successful.

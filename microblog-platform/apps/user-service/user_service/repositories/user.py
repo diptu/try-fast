@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from user_service.models.user import User
@@ -19,7 +21,7 @@ class UserRepository:
         result = await self.session.execute(statement)
         return result.scalar_one_or_none()
 
-    async def get_by_id(self, user_id: str) -> User | None:
+    async def get_by_id(self, user_id: UUID) -> User | None:
         """Fetch a user record by their unique database primary key ID."""
         # Converts string ID back to integer or UUID depending on your Model definitions
         statement = select(User).where(User.id == user_id)

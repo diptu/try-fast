@@ -1,4 +1,5 @@
 from typing import Literal
+from uuid import UUID
 
 from fastapi import HTTPException, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -87,7 +88,7 @@ class UserService:
             image=image,
         )
 
-    async def get_user_profile(self, user_id: str) -> UserRead:
+    async def get_user_profile(self, user_id: UUID) -> UserRead:
         """Retrieve complete model details for an authenticated user session."""
         user = await self.repository.get_by_id(user_id)
         if not user:
@@ -99,7 +100,7 @@ class UserService:
 
     async def update_user_profile(
         self,
-        user_id: str,
+        user_id: UUID,
         name: str | None,
         email: str | None,
         password: str | None,
@@ -138,7 +139,7 @@ class UserService:
         updated_user = await self.repository.save(user)
         return UserRead.model_validate(updated_user)
 
-    async def soft_delete_user(self, user_id: str) -> dict[str, str]:
+    async def soft_delete_user(self, user_id: UUID) -> dict[str, str]:
         """
         Flag a profile status as archived to act as a safe soft-delete.
         Ensures the row is preserved for audit logs but blocked from active access.

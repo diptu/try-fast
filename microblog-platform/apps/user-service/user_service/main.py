@@ -7,12 +7,12 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, status
 from sqlalchemy import text
 
+from user_service.api.v1.router import api_router
 from user_service.core.config import settings
 
 # 1. CRITICAL: Import your Base metadata
 from user_service.db import Base
 from user_service.db.session import get_engine, get_session_maker
-from user_service.routers import user
 
 load_dotenv()
 
@@ -38,8 +38,8 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Include the routers into the main app
-app.include_router(user.router)
+
+app.include_router(api_router)
 
 
 @app.get("/db_health")
