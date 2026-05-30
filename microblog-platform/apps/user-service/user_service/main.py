@@ -1,19 +1,45 @@
 from __future__ import annotations
 
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
+
 from dotenv import load_dotenv
 from fastapi import FastAPI, status
 from sqlalchemy import text
 
 from user_service.core.config import settings
-from user_service.db.session import get_session_maker
+
+# 1. CRITICAL: Import your Base metadata
+from user_service.db import Base
+from user_service.db.session import get_engine, get_session_maker
+from user_service.routers import user
 
 load_dotenv()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+    # This runs when the server boots up
+    engine = get_engine()
+
+    async with engine.begin() as conn:
+        # Inspects the database and creates any tables missing from Base.metadata
+        await conn.run_sync(Base.metadata.create_all)
+
+    yield
+    # This runs when the server shuts down
+    await engine.dispose()
+
 
 app = FastAPI(
     title=settings.SERVICE_NAME or "user-service",
     description="Microservice responsible for user management.",
     version=settings.SERVICE_VERSION or "0.1.0",
+    lifespan=lifespan,
 )
+
+# Include the routers into the main app
+app.include_router(user.router)
 
 
 @app.get("/db_health")

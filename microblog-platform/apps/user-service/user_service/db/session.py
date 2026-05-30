@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections.abc import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
     AsyncSession,
     async_sessionmaker,
     create_async_engine,
@@ -11,7 +12,8 @@ from sqlalchemy.pool import NullPool
 
 from user_service.core.config import settings
 
-_engine = None
+# Explicitly type hint global trackers so Mypy understands their state transitions
+_engine: AsyncEngine | None = None
 _session_maker: async_sessionmaker[AsyncSession] | None = None
 
 
@@ -44,3 +46,17 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 
     async with session_maker() as session:
         yield session
+
+
+def get_engine() -> AsyncEngine:
+    """
+    Ensures the engine and session maker are initialized,
+    then returns the active engine.
+    """
+    get_session_maker()  # Triggers the initialization block
+
+    # Assert or check that _engine is truly populated to completely satisfy Mypy
+    if _engine is None:
+        raise RuntimeError("Database engine has not been properly initialized.")
+
+    return _engine

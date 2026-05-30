@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class AddressBase(BaseModel):
@@ -10,4 +10,8 @@ class AddressBase(BaseModel):
 
     is_default: bool = Field(default=False, alias="isDefault")
 
-    model_config = {"populate_by_name": True}
+    model_config = ConfigDict(
+        populate_by_name=True,
+        from_attributes=True,
+        validate_by_name=True,
+    )

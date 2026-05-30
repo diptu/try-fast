@@ -1,11 +1,9 @@
 from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 from user_service.core.config import settings
-from user_service.schemas.address import AddressBase
-from user_service.schemas.social import SocialBase
 
 
 class UserBase(BaseModel):
@@ -24,24 +22,22 @@ class UserBase(BaseModel):
 
 # CREATE
 class UserCreate(UserBase):
-    id: UUID
     password: str = Field(..., min_length=8)
-    address: AddressBase | None = None
-    social: SocialBase | None = None
 
 
 # UPDATE (PATCH-style)
 class UserUpdate(UserBase):
     password: str
-    address: AddressBase | None = None
-    social: SocialBase | None = None
 
 
 # READ RESPONSE (API OUTPUT)
+
+
 class UserRead(UserBase):
     id: UUID
 
-    address: AddressBase | None = None
-    social: SocialBase | None = None
-
-    model_config = {"from_attributes": True}
+    model_config = ConfigDict(
+        from_attributes=True,
+        populate_by_name=True,
+        validate_by_name=True,
+    )

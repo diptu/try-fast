@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     PORT: int = 8001
 
     DATABASE_URL: str | None = None
+    UPLOAD_DIR: str = "media/users"
     DEFAULT_USER_IMAGE: str = (
         "microblog-platform/apps/user-service/user_service/assets/user.png"
     )
@@ -23,4 +24,4 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-settings = Settings()
+# settings = Settings()
