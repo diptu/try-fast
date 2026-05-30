@@ -96,3 +96,75 @@ class UserService:
                 detail="User profile could not be found.",
             )
         return UserRead.model_validate(user)
+
+    async def update_user_profile(
+        self,
+        user_id: str,
+        name: str | None,
+        email: str | None,
+        password: str | None,
+        image: UploadFile | None,
+    ) -> UserRead:
+        """Partially update user info or overwrite their avatar image."""
+        user = await self.repository.get_by_id(user_id)
+        if not user or user.status == "archived":
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User profile not found or account is inactive.",
+            )
+
+        if name is not None:
+            user.name = name
+
+        if email is not None:
+            # Check if email is already taken by another user
+            existing = await self.repository.get_by_email(email)
+            if existing and str(existing.id) != user_id:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="Email address is already in use.",
+                )
+            user.email = email
+
+        if password is not None:
+            # Hash the raw text securely before storing it in the database column
+            user.password_hash = hash_password(password)
+
+        if image is not None:
+            image_path = await save_image_file(image)
+            if image_path:
+                user.image = image_path
+
+        updated_user = await self.repository.save(user)
+        return UserRead.model_validate(updated_user)
+
+    async def soft_delete_user(self, user_id: str) -> dict[str, str]:
+        """
+        Flag a profile status as archived to act as a safe soft-delete.
+        Ensures the row is preserved for audit logs but blocked from active access.
+        """
+        # Retrieve the user by ID from the repository layer
+        user = await self.repository.get_by_id(user_id)
+
+        # Guard clause: Check if the user exists or is already archived
+        if not user or user.status == "archived":
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=(
+                    f"User with ID {user_id} not found or has already been archived."
+                ),
+            )
+
+        # Transition the lifecycle state flag
+        user.status = "archived"
+
+        # Persist the mutation safely inside an async transaction block
+        await self.repository.save(user)
+
+        return {
+            "status": "success",
+            "message": (
+                "Account registration for target {user_id} was "
+                "successfully archived by Administrator."
+            ),
+        }

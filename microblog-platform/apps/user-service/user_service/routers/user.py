@@ -22,8 +22,11 @@ from user_service.core.security import (
 from user_service.db.session import get_db
 from user_service.schemas.token import TokenResponse
 from user_service.schemas.user import UserRead
+from user_service.services.role import RoleChecker
 from user_service.services.user import UserService
 
+# Initialize the role guard specifically allowing 'admin' and 'superadmin'
+allow_administrative_roles = RoleChecker(allowed_roles=["admin", "superadmin"])
 router = APIRouter(
     prefix="/api/v1/users",
     tags=["users"],
@@ -179,3 +182,63 @@ async def get_user(
 
     # Downstream service tier naturally handles raising 404s if the profile isn't found
     return await service.get_user_profile(user_id=id)
+
+
+@router.put(
+    "/{id}",
+    response_model=UserRead,
+    status_code=status.HTTP_200_OK,
+    name="update_user_profile",
+)
+async def update_user(
+    id: str,
+    current_user_id: Annotated[str, Depends(is_authenticated)],
+    name: Annotated[str | None, Form()] = None,
+    email: Annotated[EmailStr | None, Form()] = None,
+    password: Annotated[str | None, Form()] = None,  # Fixed type string constraint
+    image: Annotated[UploadFile | None, File()] = None,
+    session: Annotated[AsyncSession, Depends(get_db)] = None,  # type: ignore[assignment]
+) -> UserRead:
+    """
+    Update profile fields or upload a new profile avatar image.
+    Guarded: Users can only modify their own profile data.
+    """
+    if session is None:
+        raise RuntimeError("Database session dependency was not injected.")
+
+    # Security Check: Ensure authenticated requester matches the URL target parameter
+    if id != current_user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to update this profile.",
+        )
+
+    service = UserService(session)
+    return await service.update_user_profile(
+        user_id=id, name=name, email=email, password=password, image=image
+    )
+
+
+@router.delete(
+    "/{id}",
+    status_code=status.HTTP_200_OK,
+    name="soft_delete_user_account",
+)
+async def delete_user(
+    id: str,
+    # The role guard runs first.
+    # If the user isn't an admin/superadmin, it drops a 403 instantly.
+    admin_id: Annotated[str, Depends(allow_administrative_roles)],
+    session: Annotated[AsyncSession, Depends(get_db)] = None,  # type: ignore[assignment]
+) -> dict[str, str]:
+    """
+    Soft-delete/Archive an account safely by transitioning status value flags.
+    Guarded: Restricted entirely to Admin or SuperAdmin roles.
+    """
+    if session is None:
+        raise RuntimeError("Database session dependency was not injected.")
+
+    service = UserService(session)
+
+    # Execute the soft-delete target mapping safely
+    return await service.soft_delete_user(user_id=id)
